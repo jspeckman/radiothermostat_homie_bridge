@@ -70,11 +70,17 @@ class Device_Radio_Thermostat(Device_Base):
     self.today_cool = Property_String (node,id='todaycool',name='Today Cool')
     node.add_property (self.today_cool)
 
+    self.today_total = Property_String (node,id='todaytotal',name='Today Total')
+    node.add_property (self.today_total)
+
     self.yesterday_heat = Property_String (node,id='yesterdayheat',name='Yesterday Heat')
     node.add_property (self.yesterday_heat)
 
     self.yesterday_cool = Property_String (node,id='yesterdaycool',name='Yesterday Cool')
     node.add_property (self.yesterday_cool)
+
+    self.yesterday_total = Property_String (node,id='yesterdaytotal',name='Yesterday Total')
+    node.add_property (self.yesterday_total)
 
 
     self.start()
@@ -98,10 +104,26 @@ class Device_Radio_Thermostat(Device_Base):
     self.system_status.value = self.tstat_device.tstate['human']
 
     datalog_raw = self.tstat_device.datalog['raw']
+    mtotal = datalog_raw['today']['heat_runtime']['minute'] + datalog_raw['today']['cool_runtime']['minute']
+    htotal = datalog_raw['today']['heat_runtime']['hour'] + datalog_raw['today']['cool_runtime']['hour']
+    if mtotal >= 60:
+      mtotal = mtotal - 60
+      htotal = htotal + 1
+
     self.today_heat.value = '%s hrs, %s min' % (datalog_raw['today']['heat_runtime']['hour'], datalog_raw['today']['heat_runtime']['minute'])
     self.today_cool.value = '%s hrs, %s min' % (datalog_raw['today']['cool_runtime']['hour'], datalog_raw['today']['cool_runtime']['minute'])
+    self.today_total.value = '%s hrs, %s min' % (htotal, mtotal)
+
+    mtotal = datalog_raw['yesterday']['heat_runtime']['minute'] + datalog_raw['yesterday']['cool_runtime']['minute']
+    htotal = datalog_raw['yesterday']['heat_runtime']['hour'] + datalog_raw['yesterday']['cool_runtime']['hour']
+    if mtotal >= 60:
+      mtotal = mtotal - 60
+      htotal = htotal + 1
+
     self.yesterday_heat.value = '%s hrs, %s min' % (datalog_raw['yesterday']['heat_runtime']['hour'], datalog_raw['yesterday']['heat_runtime']['minute'])
     self.yesterday_cool.value = '%s hrs, %s min' % (datalog_raw['yesterday']['cool_runtime']['hour'], datalog_raw['yesterday']['cool_runtime']['minute'])
+    self.yesterday_total.value = '%s hrs, %s min' % (htotal, mtotal)
+
 
   def set_heat_setpoint(self,value):
     self.tstat_device.t_heat = value
