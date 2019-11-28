@@ -1,0 +1,14 @@
+[Unit]
+Description=Radio Thermostat to Homie Bridge
+After=mosqitto.service
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/local/bin
+ExecStart=/usr/local/bin/radiothermostat_homie.py
+StandardOutput=syslog
+StandardError=syslog
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
